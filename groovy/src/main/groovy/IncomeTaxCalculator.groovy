@@ -40,7 +40,7 @@ class IncomeTaxCalculator {
         def annual_net_salary = _annual_salary(net_salary)
         def not_taxable_amount = _not_taxable_amount(year)
         def subject_to_tax = _subject_to_tax(annual_net_salary, not_taxable_amount)
-        def income_tax = _income_tax(subject_to_tax)
+        def income_tax = _income_tax(subject_to_tax, year)
 
         return _monthly_tax(income_tax)
     }
@@ -51,8 +51,8 @@ class IncomeTaxCalculator {
         return monthly_tax
     }
 
-    def _income_tax(BigDecimal subject_to_tax) {
-        def scale = find_scale(subject_to_tax)
+    def _income_tax(BigDecimal subject_to_tax, year) {
+        def scale = find_scale(subject_to_tax, year)
         def variable_amount = (subject_to_tax - scale.threshold).max(0.0)
         def tax = scale.base_fix_income + scale.percentage*variable_amount
 
@@ -61,13 +61,23 @@ class IncomeTaxCalculator {
         return tax
     }
 
-    def find_scale(BigDecimal subject_to_tax) {
+    def find_scale(BigDecimal subject_to_tax, year) {
+        def increase = year_compound_increases(year);
         def scale = scales
-                .findAll { subject_to_tax >= it.threshold }
-                .max { it.threshold }
+                .findAll { subject_to_tax >= it.threshold * increase }
+                .max { it.threshold * increase }
 
         println("Found scale ${scale}")
-        return scale
+
+        def result = new Scale(
+                threshold: scale.threshold * increase,
+                base_fix_income: scale.base_fix_income * increase,
+                percentage: scale.percentage
+        )
+
+        println("adjusted scale for year ${year}: ${result}")
+
+        return result
     }
 
     def _subject_to_tax(BigDecimal annual_net_salary, BigDecimal not_taxable_amount) {

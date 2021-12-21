@@ -30,12 +30,12 @@ class IncomeTaxCalculatorSpecifications extends Specification {
     10_000.0  | 0
     30_000.0  | 0
     50_000.0  | 0
-    70_000.0  | 153
-    90_000.0  | 2971
-    110_000.0 | 8290
-    130_000.0 | 15189
-    150_000.0 | 22189
-    200_000.0 | 39689
+    70_000.0  | 141
+    90_000.0  | 2409
+    110_000.0 | 6961
+    130_000.0 | 12926
+    150_000.0 | 19905
+    200_000.0 | 37405
   }
 
   def '2021 values without new increment during elections' (BigDecimal salary, int expected) {
@@ -44,9 +44,9 @@ class IncomeTaxCalculatorSpecifications extends Specification {
 
     where:
     salary    | expected
-    200_000.0 | 32847
-    300_000.0 | 67847
-    400_000.0 | 102847
+    200_000.0 | 27929
+    300_000.0 | 62929
+    400_000.0 | 97929
   }
 
   def '2022 values without increment during 2021 elections' (BigDecimal salary, int expected) {
@@ -55,9 +55,9 @@ class IncomeTaxCalculatorSpecifications extends Specification {
 
     where:
     salary    | expected
-    200_000.0 | 19592
-    300_000.0 | 54592
-    400_000.0 | 89592
+    200_000.0 | 12289
+    300_000.0 | 44572
+    400_000.0 | 79572
   }
 
 }
