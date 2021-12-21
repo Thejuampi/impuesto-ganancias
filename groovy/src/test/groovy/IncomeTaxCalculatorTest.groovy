@@ -38,4 +38,26 @@ class IncomeTaxCalculatorSpecifications extends Specification {
     200_000.0 | 39689
   }
 
+  def '2021 values without new increment during elections' (BigDecimal salary, int expected) {
+    expect:
+    calculator.calculate(salary, 2021).intValue() == expected
+
+    where:
+    salary    | expected
+    200_000.0 | 32847
+    300_000.0 | 67847
+    400_000.0 | 102847
+  }
+
+  def '2022 values without increment during 2021 elections' (BigDecimal salary, int expected) {
+    expect:
+    calculator.calculate(salary, 2022).intValue() == expected
+
+    where:
+    salary    | expected
+    200_000.0 | 19592
+    300_000.0 | 54592
+    400_000.0 | 89592
+  }
+
 }

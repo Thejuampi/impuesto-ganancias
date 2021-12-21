@@ -12,12 +12,25 @@ class IncomeTaxCalculator {
             new Scale(threshold: 528637.0, percentage: 0.35, base_fix_income: 117951),
     ]
 
-    def year_multiplier = [
+    def year_multipliers = [
             (2019 as int) : (BigDecimal.valueOf(1)), // base
             2020 : 1.44277964,
             2021 : 1.35376098,
             2022 : 1.50624644,
     ]
+
+    def year_compound_increases(year) {
+        if(!year_multipliers.containsKey(year)) throw new IllegalArgumentException("year ${year} is not in ${year_multipliers}")
+
+        def min_supported_year = year_multipliers.keySet().min();
+
+        def composed = 1 as Double;
+        for(int y = year; y > min_supported_year; y--) {
+            composed = composed * year_multipliers.get(y);
+        }
+
+        return composed;
+    }
 
     static final BigDecimal not_taxable = 85848.99 + 412075.14
     def static final max_contribution = 16598.31
@@ -70,8 +83,8 @@ class IncomeTaxCalculator {
     }
 
     def _not_taxable_amount(int year) {
-        println("Annual not taxable amount: ${not_taxable*year_multiplier.get(year)}")
-        return BigDecimal.valueOf(not_taxable*year_multiplier.get(year))
+        println("Annual not taxable amount: ${not_taxable*year_compound_increases(year)}")
+        return BigDecimal.valueOf(not_taxable*year_compound_increases(year))
     }
 
     def _net_salary_without_income_tax(BigDecimal gross_salary_per_month) {
