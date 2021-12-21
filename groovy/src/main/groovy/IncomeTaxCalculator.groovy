@@ -1,7 +1,5 @@
 class IncomeTaxCalculator {
 
-    def factor = 1.0
-
     def static final scales = [
             new Scale(threshold: 0, percentage: 0.05, base_fix_income: 0),
             new Scale(threshold: 33040.0, percentage: 0.09, base_fix_income: 1652),
@@ -14,20 +12,27 @@ class IncomeTaxCalculator {
             new Scale(threshold: 528637.0, percentage: 0.35, base_fix_income: 117951),
     ]
 
-    def static final not_taxable = 85848.99 + 412075.14
+    def year_multiplier = [
+            (2019 as int) : (BigDecimal.valueOf(1)), // base
+            2020 : 1.44277964,
+            2021 : 1.35376098,
+            2022 : 1.50624644,
+    ]
+
+    static final BigDecimal not_taxable = 85848.99 + 412075.14
     def static final max_contribution = 16598.31
 
-    def calculate(BigDecimal gross_salary_per_month) {
+    def calculate(BigDecimal gross_salary_per_month, int year) {
         def net_salary = _net_salary_without_income_tax(gross_salary_per_month)
         def annual_net_salary = _annual_salary(net_salary)
-        def not_taxable_amount = _not_taxable_amount()
+        def not_taxable_amount = _not_taxable_amount(year)
         def subject_to_tax = _subject_to_tax(annual_net_salary, not_taxable_amount)
         def income_tax = _income_tax(subject_to_tax)
 
         return _monthly_tax(income_tax)
     }
 
-    def _monthly_tax(BigDecimal income_tax) {
+    static def _monthly_tax(BigDecimal income_tax) {
         def monthly_tax = income_tax / 13.0
         println("Monthly tax = $income_tax / 13 = $monthly_tax")
         return monthly_tax
@@ -64,9 +69,9 @@ class IncomeTaxCalculator {
         return annual_net_salary
     }
 
-    def _not_taxable_amount() {
-        println("Annual not taxable amount: ${not_taxable*factor}")
-        return not_taxable*factor
+    def _not_taxable_amount(int year) {
+        println("Annual not taxable amount: ${not_taxable*year_multiplier.get(year)}")
+        return BigDecimal.valueOf(not_taxable*year_multiplier.get(year))
     }
 
     def _net_salary_without_income_tax(BigDecimal gross_salary_per_month) {
